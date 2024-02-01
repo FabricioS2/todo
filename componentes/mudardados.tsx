@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Button, Platform, TextInput, TouchableOpacity ,Pressable} from 'react-native';
 import { IconButton } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import Home from './home';
 
 interface listaprops {
@@ -12,14 +12,49 @@ interface listaprops {
 }
 
 
-export default function Mudardados({ navigation: { navigate } }) {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedTime, setSelectedTime] = useState(new Date());
-  const [textoTarefa, setTextoTarefa] = useState();
-  const [id, setId] = useState();
+export default function Mudardados({ handleDeleteTodo,route,navigation: { navigate } }) {
+  // const [selectedDate, setSelectedDate] = useState(new Date());
+  // const [selectedTime, setSelectedTime] = useState(new Date());
+  // const [textoTarefa, setTextoTarefa] = useState();
+  // const [id, setId] = useState();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [textoTarefa, setTextoTarefa] = useState('');
+  const [id, setId] = useState('');
+
+  const { id: editId, texto: editTexto, data: editData, tempo: editTempo } = route.params || {};
+
+  useEffect(() => {
+    if (editId) {
+      // Se estiver em modo de edição, preencha os campos com os dados antigos
+      // setId(editId);
+      setTextoTarefa(editTexto);
+      setSelectedDate(new Date(editData));
+      setSelectedTime(new Date(editData));
+    }
+  }, [editId]);
+
+  const saveDateTime = () => {
+    // Lógica de salvamento, por exemplo, enviar para um servidor, salvar localmente, etc.
+    console.log('Data Selecionada:', selectedDate.toDateString());
+    console.log('Hora Selecionada:', selectedTime.toLocaleTimeString());
+    console.log('Texto da tarefa:', textoTarefa);
+    console.log('ID:', id);
+
+    // Chame a função onEdit para atualizar a lista após a edição
+    if (onEdit) {
+      onEdit({
+        id,
+        texto: textoTarefa,
+        data: selectedDate.toDateString(),
+        tempo: selectedTime.toLocaleTimeString(),
+      });
+    }
+  };  
 
 
   const gerarIdBaseadoNosMinutos = () => {
@@ -39,18 +74,18 @@ export default function Mudardados({ navigation: { navigate } }) {
     setSelectedTime(currentTime);
   };
 
-  const saveDateTime = () => {
-    // Aqui você pode realizar a lógica de salvamento, por exemplo, enviar para um servidor, salvar localmente, etc.
-    const novoId = gerarIdBaseadoNosMinutos();
-    setId(novoId.toString());
-    console.log('Data Selecionada:', selectedDate.toDateString());
-    console.log('Hora Selecionada:', selectedTime.toLocaleTimeString());
-    console.log('Texto da tarefa:', textoTarefa);
-    console.log('ID:', id);
+  // const saveDateTime = () => {
+  //   // Aqui você pode realizar a lógica de salvamento, por exemplo, enviar para um servidor, salvar localmente, etc.
+  //   const novoId = gerarIdBaseadoNosMinutos();
+  //   setId(novoId.toString());
+  //   console.log('Data Selecionada:', selectedDate.toDateString());
+  //   console.log('Hora Selecionada:', selectedTime.toLocaleTimeString());
+  //   console.log('Texto da tarefa:', textoTarefa);
+  //   console.log('ID:', id);
 
-    // console.log('id:', id.Math.floor(new Date().getTime() / 1000));
+  //   // console.log('id:', id.Math.floor(new Date().getTime() / 1000));
 
-  };
+  // };
 
 
 
@@ -62,15 +97,19 @@ export default function Mudardados({ navigation: { navigate } }) {
     setShowTimePicker(true);
   };
 
-  const passarDados = () => {navigate("Home", {
-    id: gerarIdBaseadoNosMinutos().toString(),
+  const passarDados = () => {navigate("Home"
+  ,
+   {
+    id: editId,
     texto: textoTarefa,
     data: selectedDate.toDateString(),
     tempo: selectedTime.toLocaleTimeString(),
-  })
+  }
+  )
   };
   
   const irParaHome = () => {
+    handleDeleteTodo(id);
     passarDados();
     // setTodoList([...todoList, { id: id, title: texto,data:data, tempo:tempo   }]);
     // navigate("Home");
@@ -133,7 +172,7 @@ export default function Mudardados({ navigation: { navigate } }) {
             // tempo: selectedTime.toLocaleTimeString(),
           
           // })
-          irParaHome
+          passarDados
         }
           
           color={'rgba(13, 110, 155, 1)'} title="Salvar" />

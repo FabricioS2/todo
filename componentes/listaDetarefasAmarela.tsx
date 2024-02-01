@@ -6,7 +6,7 @@ import Home from './home';
 import CriarTarefa from './criarTarefa';
 
 
-export default function ListaDetarefasAmarela({navigation,dados,handleDeleteTodo}) {
+export default function ListaDetarefasAmarela({navigation,dados,handleDeleteTodo,toggleDone}) {
 
   if (!dados || !dados.item) {
     return null; // ou renderize algo apropriado
@@ -72,19 +72,20 @@ export default function ListaDetarefasAmarela({navigation,dados,handleDeleteTodo
 
 
   const toggleCor = () => {
-    const itemHora = new Date(selectedDate); // Preservando a data selecionada
+    const itemHora = new Date(); // Preservando a data selecionada
   const horaItem = item.hora.split(':');
   itemHora.setHours(horaItem[0], horaItem[1]);
 
-    if ((itemHora < selectedTime)){
+    if ((itemHora >= selectedTime) || (itemHora >=  selectedDate)){
       setCor("#387842");
       setline("line-through");
       seticon(true);
+      toggleDone(item.id,2)
     }else{
       setCor("#9C4130");
       setline("line-through");
       seticon(true);
-
+      toggleDone(item.id,3)
     }
 
   };
@@ -105,7 +106,12 @@ export default function ListaDetarefasAmarela({navigation,dados,handleDeleteTodo
       <IconButton icon={"trash-can-outline"} style={{marginRight:-20,}} onPress={()=>{ handleDeleteTodo(item.id)}}/>
       </TouchableOpacity>
       <TouchableOpacity >
-      <IconButton icon={"dots-vertical"} style={{marginRight:-50,}} onPress={() => navigation.navigate('Mudardados')}/>
+      <IconButton icon={"dots-vertical"} style={{marginRight:-50,}} onPress={() => navigation.navigate('Mudardados', {
+      id: item.id,
+      texto: item.texto,
+      data: item.data,
+      tempo: item.tempo,
+    })}/>
       </TouchableOpacity>
 
       </View>

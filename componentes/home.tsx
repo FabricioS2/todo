@@ -14,17 +14,25 @@ export default function Home({ navigation,route }) {
   const { id, texto, data, tempo } = route.params || {};
   const [todoList, setTodoList] = useState([]);
 
+  console.log(todoList)
+
   useEffect(() => {
     if (route.params) {
       // Adiciona a tarefa com base nos parâmetros da rota
+
+      const { id, texto, data, tempo } = route.params;
+    
+      // Filtrar a lista para manter apenas o último item com o mesmo ID
+      const filteredList = todoList.filter(item => item.id !== id);
+      
       setTodoList([
-        ...todoList,
+        ...filteredList,
         {
           id: route.params.id,
           texto: route.params.texto,
           data: route.params.data,
           hora: route.params.tempo,
-          done: Boolean,
+          done: 1,
         },
       ]);
     }
@@ -34,13 +42,38 @@ export default function Home({ navigation,route }) {
 
 const currentTime: Date = new Date();
 
+const toggleDone = (itemId,valor) => {
+  setTodoList((prevList) => {
+    return prevList.map((item) => {
+      if (item.id === itemId) {
+        return {
+          ...item,
+          done: valor, // Inverte o valor de done
+        };
+      }
+      return item;
+    });
+  });
+};
+
+
+
+const countDoneValues = (value) => {
+  const count = todoList.filter((item) => item.done === value).length;
+  return count;
+};
+
+const countDone1 = countDoneValues(1);
+const countDone2 = countDoneValues(2);
+const countDone3 = countDoneValues(3);
+
 
   const renderTodos = ({item,index})=>{
     
     return(
       <View>
         
-      <ListaDetarefasAmarela navigation={navigation} dados={{ item, index }} handleDeleteTodo={handleDeleteTodo}/>
+      <ListaDetarefasAmarela navigation={navigation} dados={{ item, index }} handleDeleteTodo={handleDeleteTodo} toggleDone={toggleDone}/>
       </View>
     );
   
@@ -58,7 +91,7 @@ const currentTime: Date = new Date();
       //  id:
       //  title:
       // }
-  
+    
       if (todo === "") {
         return; // early return
       }
@@ -76,11 +109,18 @@ const currentTime: Date = new Date();
   
     // Handle Edit todo
   
-    const handleEditTodo = (todo) => {
-      setEditedTodo(todo);
-      setTodo(todo.title);
+    // const handleEditTodo = (todo) => {
+    //   setEditedTodo(todo);
+    //   setTodoList(todo.title);
+    // };
+    const editarItem = (id, texto, data, tempo) => {
+      navigate("CriarTarefa", {
+        id,
+        texto,
+        data,
+        tempo,
+      });
     };
-  
     // Handle Update
   
     const handleUpdateTodo = () => {
@@ -98,14 +138,15 @@ const currentTime: Date = new Date();
 
     return(
       <View style={styles.container}>
-        <Score/>
+        <Score countDone1={countDone1} countDone2={countDone2} countDone3={countDone3}/>
 
-        <FlatList  data={todoList} renderItem={renderTodos}/>
+        <FlatList  data={todoList} renderItem={renderTodos}   showsVerticalScrollIndicator={false}/>
         {/* <ListaDetarefasAmarela navigation={navigation}  /> */}
         {/* <ListaDetarefasVerde/>
         <ListaDetarefasVermelha/> */}
 
         <AbrirCriarTarefa navigation={navigation} />
+        
 
       </View>
     );

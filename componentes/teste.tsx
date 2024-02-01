@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function Score() {
+export default function Score({countDone1,countDone2,countDone3}) {
   return (
     <View style={styles.container}>
       <View style={styles.caixa_azul}>
@@ -13,13 +13,13 @@ export default function Score() {
 
       <View style={styles.caixa_alinhada}>
       <View style={styles.caixa_verde}>
-      <Text style={styles.texto_escore}>9</Text>
+      <Text style={styles.texto_escore}>{countDone2}</Text>
       </View>
       <View style={styles.caixa_amarela}>
-      <Text style={styles.texto_escore}>2</Text>
+      <Text style={styles.texto_escore}>{countDone1}</Text>
       </View>
       <View style={styles.caixa_vermelha}>
-      <Text style={styles.texto_escore}>2</Text>
+      <Text style={styles.texto_escore}>{countDone3}</Text>
       </View>
 
       </View>
