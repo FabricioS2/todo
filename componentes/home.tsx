@@ -5,7 +5,7 @@ import ListaDetarefasVerde from "./listaDetarefasVerde"
 import ListaDetarefasVermelha from "./listaDetarefasVermelha"
 import AbrirCriarTarefa from "./abrirCriarTarefa"
 import React, { useState,useEffect } from 'react';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -16,29 +16,56 @@ export default function Home({ navigation,route }) {
 
   console.log(todoList)
 
+  
+  // useEffect(() => {
+  //   if (route.params) {
+  //     // Adiciona a tarefa com base nos parâmetros da rota
+
+  //     const { id, texto, data, tempo } = route.params;
+    
+  //     // Filtrar a lista para manter apenas o último item com o mesmo ID
+  //     const filteredList = todoList.filter(item => item.id !== id);
+      
+  //     setTodoList([
+  //       ...filteredList,
+  //       {
+  //         id: route.params.id,
+  //         texto: route.params.texto,
+  //         data: route.params.data,
+  //         hora: route.params.tempo,
+  //         done: 1,
+  //       },
+  //     ]);
+  //   }
+  // }, [route.params]);
+
+
+
   useEffect(() => {
     if (route.params) {
       // Adiciona a tarefa com base nos parâmetros da rota
-
       const { id, texto, data, tempo } = route.params;
-    
+  
       // Filtrar a lista para manter apenas o último item com o mesmo ID
       const filteredList = todoList.filter(item => item.id !== id);
-      
-      setTodoList([
-        ...filteredList,
-        {
-          id: route.params.id,
-          texto: route.params.texto,
-          data: route.params.data,
-          hora: route.params.tempo,
-          done: 1,
-        },
-      ]);
+  
+      const newTask = {
+        id: route.params.id,
+        texto: route.params.texto,
+        data: route.params.data,
+        hora: route.params.tempo,
+        done: 1,
+      };
+  
+      setTodoList([...filteredList, newTask]);
+  
+      // Salva a lista atualizada no AsyncStorage
+      AsyncStorage.setItem('todoList', JSON.stringify([...filteredList, newTask]))
+        .then(() => console.log('Lista salva com sucesso no AsyncStorage'))
+        .catch(error => console.error('Erro ao salvar a lista no AsyncStorage:', error));
     }
   }, [route.params]);
-
-
+  
 
 const currentTime: Date = new Date();
 
@@ -85,7 +112,7 @@ const countDone3 = countDoneValues(3);
     const [editedTodo, setEditedTodo] = useState(null);
   
     // Handle Add Todo
-    const handleAddTodo = () => {
+    const handleAddTodo = async () => {
       // sturtcure of a single todo item
       // {
       //  id:
@@ -96,14 +123,23 @@ const countDone3 = countDoneValues(3);
         return; // early return
       }
   
+      const newTodo = { id, title: texto, data, hora: tempo, done: 1 };
+      const updatedList = [...todoList, newTodo];
+
+      // Salvando a lista atualizada no AsyncStorage
+      await AsyncStorage.setItem('todoList', JSON.stringify(updatedList));
+
         setTodoList([...todoList, { id: id, title: texto,data:data, hora:tempo   }]);
         // setTodo("");
       };
 
     // Handle Delete
-    const handleDeleteTodo = (id) => {
+    const handleDeleteTodo = async (id) => {
       const updatedTodoList = todoList.filter((todo) => todo.id !== id);
-  
+
+      // Salvando a lista atualizada no AsyncStorage
+      await AsyncStorage.setItem('todoList', JSON.stringify(updatedTodoList));
+
       setTodoList(updatedTodoList);
     };
   
